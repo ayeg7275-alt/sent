@@ -427,24 +427,51 @@
     let config = { ...defaultConfig };
 
     // Countdown timer
-    function updateCountdown() {
-      const now = new Date();
-      const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      const diff = endDate - now;
-      
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      document.getElementById('days').textContent = String(days).padStart(2, '0');
-      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-    }
-    
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
+    let endDate;
+
+// 🔥 7일 후 시간 계산해서 저장
+function setNewCountdown() {
+  const now = new Date();
+  const newEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  localStorage.setItem("countdownEnd", newEnd.getTime());
+  endDate = newEnd;
+}
+
+function initCountdown() {
+  const savedEnd = localStorage.getItem("countdownEnd");
+
+  if (savedEnd) {
+    endDate = new Date(parseInt(savedEnd));
+  } else {
+    setNewCountdown();
+  }
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = endDate - now;
+
+  // 🔥 0 되면 자동으로 다시 7일 세팅
+  if (diff <= 0) {
+    setNewCountdown();
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  document.getElementById('days').textContent = String(days).padStart(2, '0');
+  document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+  document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+}
+
+// 🔥 시작
+initCountdown();
+setInterval(updateCountdown, 1000);
+updateCountdown();
 
     // Viewer count animation
     function updateViewerCount() {
